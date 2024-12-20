@@ -1,0 +1,61 @@
+CREATE TABLE Client (
+    idClient INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(50) NOT NULL,
+    prenom VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    adresse VARCHAR(255),
+    telephone VARCHAR(15),
+    statut BOOLEAN DEFAULT TRUE, -- Actif par défaut
+    dateInscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE Utilisateur (
+    idUtilisateur INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(50) NOT NULL,
+    prenom VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    motDePasse VARCHAR(255) NOT NULL,
+    telephone VARCHAR(15),
+    role ENUM('admin', 'bibliothecaire') NOT NULL DEFAULT 'bibliothecaire',
+    statut BOOLEAN DEFAULT TRUE -- Utilisateur actif par défaut
+);
+
+CREATE TABLE Livre (
+    idLivre INT AUTO_INCREMENT PRIMARY KEY,
+    titre VARCHAR(100) NOT NULL,
+    auteur VARCHAR(100),
+    isbn VARCHAR(20) UNIQUE,
+    anneePublication INT,
+    statut ENUM('disponible', 'emprunté', 'en échange', 'réservé') DEFAULT 'disponible',
+    idBibliotheque INT
+);
+CREATE TABLE Achat (
+    idAchat INT AUTO_INCREMENT PRIMARY KEY,
+    idLivre INT,
+    dateAchat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    quantite INT,
+    statutValidation BOOLEAN DEFAULT FALSE,
+    idBibliothecaire INT,
+    FOREIGN KEY (idLivre) REFERENCES Livre(idLivre),
+    FOREIGN KEY (idBibliothecaire) REFERENCES Bibliothecaire(idBibliothecaire)
+);
+CREATE TABLE Emprunt (
+    idEmprunt INT AUTO_INCREMENT PRIMARY KEY,
+    idLivre INT,
+    idClient INT,
+    dateEmprunt DATE DEFAULT CURRENT_DATE,
+    dateRetourPrevue DATE,
+    dateRetourEffective DATE,
+    statut ENUM('en cours', 'retourné', 'en retard') DEFAULT 'en cours',
+    FOREIGN KEY (idLivre) REFERENCES Livre(idLivre),
+    FOREIGN KEY (idClient) REFERENCES Client(idClient)
+);
+CREATE TABLE Echange (
+    idEchange INT AUTO_INCREMENT PRIMARY KEY,
+    idLivre INT,
+    idBibliothequeSource INT,
+    idBibliothequeDestination INT,
+    dateDemande DATE DEFAULT CURRENT_DATE,
+    dateReception DATE,
+    statut ENUM('en attente', 'en cours', 'terminé') DEFAULT 'en attente',
+    FOREIGN KEY (idLivre) REFERENCES Livre(idLivre)
+);
